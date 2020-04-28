@@ -261,8 +261,10 @@ def customized_vgg16(img_rows,img_cols,color_type=3):
     return model
 
 
+
+###Execute and save results
 train_data, train_target, driver_id, unique_drivers = read_and_normalize_data(224, 224, color_type_global)
-train_data, train_target, test_f, test_t = split_train_test(train_data,train_target,driver_id,unique_drivers,num=5,seed=123)
+train_data, train_target, test_f, test_t = split_train_test(train_data,train_target,driver_id,unique_drivers,num=4,seed=132)
 model = customized_vgg16(224,224,color_type=3)
 es = EarlyStopping(patience=10,restore_best_weights=True)
 history = model.fit(train_data,train_target,batch_size=64,epochs=100,validation_data=(test_f,test_t),callbacks=[es])
@@ -270,3 +272,18 @@ history = model.fit(train_data,train_target,batch_size=64,epochs=100,validation_
 pd.DataFrame(history.history).plot(figsize=(8,5))
 plt.grid(True)
 plt.show()
+
+trainh = pd.DataFrame(history.history)
+trainh.to_csv('history.csv')
+model.save("standardVGGwith0-1norm.h5")
+
+from sklearn.metrics import confusion_matrix
+pred = model.predict_classes(test_f)
+def decode(datum):
+    return np.argmax(datum)
+de_test_t = []
+for i in range(test_t.shape[0]):
+    de_test_t.append(decode(test_t[i]))
+conf = confusion_matrix(de_test_t,pred)
+plt.matshow(conf,cmap=plt.cm.Blues)
+pd.DataFrame(conf).to_csv('conf.csv')
