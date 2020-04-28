@@ -220,10 +220,20 @@ def customized_vgg16(img_rows,img_cols,color_type=3):
     #model.add(SpatialDropout2D(0.5))
     model.add(MaxPooling2D(pool_size=(2,2),strides=(2,2)))
     
-    
+    #Standard VGG16 with substract mean normalization and pretrained weights
     #Load pre-trained model weights https://github.com/fchollet/deep-learning-models/releases/tag/v0.1
     #Be noticed that input dimension ordering is set as tensorflow custom: (row,column,channel)
-    #model.load_weights('../input/pretrained2/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5')
+    #model.add(Flatten())
+    #model.add(Dense(4096, activation="linear",kernel_initializer='he_normal'))
+    #model.add(LeakyReLU(alpha=0.1))
+    #model.add(Dropout(0.5))
+    #model.add(Dense(4096, activation="linear",kernel_initializer='he_normal'))
+    #model.add(LeakyReLU(alpha=0.1))
+    #model.add(Dropout(0.5))
+    #model.add(Dense(1000, activation='softmax'))
+    #model.load_weights('../input/pretrained/pretrainedvgg16weights.h5')
+    #model.layers.pop()
+    #model.add(Dense(10, activation='softmax'))
     
     #Discard the last 4 layers (flatten and 3 dense) and add another 3 Conv2D layers
     #Be noticed that the last 3 Conv2D layers do not use padding and the final 
