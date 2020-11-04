@@ -288,7 +288,7 @@ def load_image(img_path,size = (224,224)):
 #            label = i
 #            break
 #Below is a clumsy workaround to avoid define tf variables inside a tf.function
-if tf.strings.regex_full_match(img_path,".*c0.*"):
+    if tf.strings.regex_full_match(img_path,".*c0.*"):
         label = tf.constant(0)
     elif tf.strings.regex_full_match(img_path,".*c1.*"):
         label = tf.constant(1)
