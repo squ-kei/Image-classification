@@ -271,6 +271,80 @@ def customized_vgg16(img_rows,img_cols,color_type=3):
     return model
 
 
+###################################################################
+#Another data ingestion pipeline using tf.data.Dataset
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+
+BATCH_SIZE = 64
+def load_image(img_path,size = (224,224)):
+    img = tf.io.read_file(img_path)
+    img = tf.io.decode_jpeg(img, channels=3) 
+    img = tf.image.resize(img,size)/255.0
+#    label = tf.constant(0)
+#    for i in tf.range(10):
+#        pattern = tf.constant(".*c")+ tf.strings.as_string(i) + tf.constant(".*")
+#        if tf.strings.regex_full_match(img_path,pattern):
+#            label = i
+#            break
+#Below is a clumsy workaround to avoid define tf variables inside a tf.function
+if tf.strings.regex_full_match(img_path,".*c0.*"):
+        label = tf.constant(0)
+    elif tf.strings.regex_full_match(img_path,".*c1.*"):
+        label = tf.constant(1)
+    elif tf.strings.regex_full_match(img_path,".*c2.*"):
+        label = tf.constant(2)
+    elif tf.strings.regex_full_match(img_path,".*c3.*"):
+        label = tf.constant(3)
+    elif tf.strings.regex_full_match(img_path,".*c4.*"):
+        label = tf.constant(4)
+    elif tf.strings.regex_full_match(img_path,".*c5.*"):
+        label = tf.constant(5)
+    elif tf.strings.regex_full_match(img_path,".*c6.*"):
+        label = tf.constant(6)
+    elif tf.strings.regex_full_match(img_path,".*c7.*"):
+        label = tf.constant(7)
+    elif tf.strings.regex_full_match(img_path,".*c8.*"):
+        label = tf.constant(8)
+    else:
+        label = tf.constant(9)
+    return(img,label)
+
+    
+train_path = "../input/imgs/train/*/*.jpg"
+test_path = "../input/imgs/test/*.jpg"
+
+files = glob.glob(train_path)
+def split_validation(train_path,test_size,random_state=123):
+    train_img_path, val_img_path = train_test_split(train_path,test_size=test_size,random_state=random_state)
+    return train_img_path, val_img_path
+
+train_img_path, val_img_path = split_validation(files,0.3)
+
+#Here the reason use drop_reminder=True in batch method is because BatchNormailization need fix batch size
+ds_train = tf.data.Dataset.list_files(train_img_path) \
+           .map(load_image, num_parallel_calls=tf.data.experimental.AUTOTUNE) \
+           .shuffle(buffer_size = 1000).batch(BATCH_SIZE,drop_remainder=True) \
+           .prefetch(tf.data.experimental.AUTOTUNE)  
+
+ds_val = tf.data.Dataset.list_files(val_img_path) \
+           .map(load_image, num_parallel_calls=tf.data.experimental.AUTOTUNE) \
+           .shuffle(buffer_size = 1000).batch(BATCH_SIZE,drop_remainder=True) \
+           .prefetch(tf.data.experimental.AUTOTUNE) 
+
+
+
+
+##############################################################################
+
+
+
+
+
+
+
+
+
 
 ###Execute and save results
 train_data, train_target, driver_id, unique_drivers = read_and_normalize_data(224, 224, color_type_global)
